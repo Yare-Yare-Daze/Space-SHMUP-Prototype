@@ -14,6 +14,7 @@ public class Hero : MonoBehaviour
     public float gameRestartDelay = 2f;
     public GameObject projectilePrefab;
     public float projectileSpeed = 40;
+    public Weapon[] weapons;
 
     [Header("Set Dynamically")] 
     [SerializeField]
@@ -37,8 +38,29 @@ public class Hero : MonoBehaviour
             }
         }
     }
+
+    private Weapon GetEmptyWeaponSlot()
+    {
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i].type == WeaponType.none)
+            {
+                return (weapons[i]);
+            }
+        }
+        
+        return (null);
+    }
+
+    private void ClearWeapons()
+    {
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.SetType(WeaponType.none);
+        }
+    }
     
-    private void Awake()
+    private void Start()
     {
         if (S == null)
         {
@@ -50,6 +72,9 @@ public class Hero : MonoBehaviour
         }
 
         //fireDelegate += TempFire;
+        
+        ClearWeapons();
+        weapons[0].SetType(WeaponType.blaster);
     }
 
     private void Update()
@@ -104,9 +129,41 @@ public class Hero : MonoBehaviour
             shieldLevel--;
             Destroy(go);
         }
+        else if (go.tag == "PowerUp")
+        {
+            AbsorbedPowerUp(go);
+        }
         else
         {
             print("Triggered by non-Enemy: " + go.name);
         }
+    }
+
+    public void AbsorbedPowerUp(GameObject go)
+    {
+        PowerUp powerUp = go.GetComponent<PowerUp>();
+        switch (powerUp.type)
+        {
+            case WeaponType.shield:
+                shieldLevel++;
+                break;
+            
+            default:
+                if (powerUp.type == weapons[0].type)
+                {
+                    Weapon weapon = GetEmptyWeaponSlot();
+                    if (weapon != null)
+                    {
+                        weapon.SetType(powerUp.type);
+                    }
+                }
+                else
+                {
+                    ClearWeapons();
+                    weapons[0].type = powerUp.type;
+                }
+                break;
+        }
+        powerUp.AbsorbedBy(this.gameObject);
     }
 }
