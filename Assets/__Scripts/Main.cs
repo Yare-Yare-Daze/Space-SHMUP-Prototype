@@ -22,6 +22,21 @@ public class Main : MonoBehaviour
     };
 
     private BoundsCheck bndCheck;
+    
+    public void ShipDestroed(Enemy enemy)
+    {
+        if (Random.value <= enemy.powerUpDropChance)
+        {
+            int ndx = Random.Range(0, powerUpFrequency.Length);
+            WeaponType puType = powerUpFrequency[ndx];
+            
+            GameObject go = Instantiate(prefabPowerUp) as GameObject;
+            PowerUp pu = go.GetComponent<PowerUp>();
+            pu.SetType(puType);
+
+            pu.transform.position = enemy.transform.position;
+        }
+    }
 
     private void Awake()
     {
@@ -83,18 +98,5 @@ public class Main : MonoBehaviour
         return (new WeaponDefinition());
     }
 
-    public void ShipDestroed(Enemy enemy)
-    {
-        if (Random.value <= enemy.powerUpDropChance)
-        {
-            int ndx = Random.Range(0, powerUpFrequency.Length);
-            WeaponType puType = powerUpFrequency[ndx];
-            
-            GameObject go = Instantiate(prefabPowerUp) as GameObject;
-            PowerUp pu = go.GetComponent<PowerUp>();
-            pu.SetType(puType);
-
-            pu.transform.position = enemy.transform.position;
-        }
-    }
+    
 }
